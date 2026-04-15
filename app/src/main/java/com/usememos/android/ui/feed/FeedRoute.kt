@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ChevronLeft
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Close
@@ -39,6 +40,8 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Tag
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -171,8 +174,20 @@ fun FeedRoute(
                     )
                 }
 
+                // Active filter chips (mirroring the web app filter bar)
+                if (state.selectedDate != null || state.selectedTag != null) {
+                    item {
+                        ActiveFilterBar(
+                            selectedDate = state.selectedDate,
+                            selectedTag = state.selectedTag,
+                            onClearDate = { onDateSelected(null) },
+                            onClearTag = { onTagSelected(null) },
+                        )
+                    }
+                }
+
                 if (state.memos.isEmpty()) {
-                    item { EmptyStateCard(isFiltered = state.selectedTag != null, isConfigured = state.isConfigured) }
+                    item { EmptyStateCard(isFiltered = state.selectedTag != null || state.selectedDate != null, isConfigured = state.isConfigured) }
                 } else {
                     items(state.memos, key = Memo::id) { memo ->
                         MemoCard(memo = memo)
@@ -208,6 +223,80 @@ fun FeedRoute(
                 },
                 onDismiss = { memoLinkPickerOpen = false },
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ActiveFilterBar(
+    selectedDate: LocalDate?,
+    selectedTag: String?,
+    onClearDate: () -> Unit,
+    onClearTag: () -> Unit,
+) {
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        selectedDate?.let { date ->
+            FilterChipPill(
+                icon = Icons.Outlined.CalendarMonth,
+                label = date.format(dateFormatter),
+                onDismiss = onClearDate,
+            )
+        }
+        selectedTag?.let { tag ->
+            FilterChipPill(
+                icon = Icons.Outlined.Tag,
+                label = tag,
+                onDismiss = onClearTag,
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilterChipPill(
+    icon: ImageVector,
+    label: String,
+    onDismiss: () -> Unit,
+) {
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        modifier = Modifier,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(14.dp),
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Box(
+                modifier = Modifier
+                    .size(16.dp)
+                    .clickable(onClick = onDismiss),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = "Clear filter",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(14.dp),
+                )
+            }
         }
     }
 }
@@ -427,8 +516,9 @@ private fun MemoCard(memo: Memo) {
                 )
                 SyncBadge(memo.syncState)
             }
+            val cleanedText = memo.content.replace(Regex("(?<=\\s|^)#[^\\s#]+"), "").trim()
             MarkdownMemoText(
-                markdown = memo.content,
+                markdown = cleanedText,
                 modifier = Modifier.fillMaxWidth(),
             )
             MemoTagRow(memo = memo)
@@ -583,6 +673,10 @@ private fun CalendarPanel(
         repeat(startOffset) { add(null) }
         for (day in 1..currentMonth.lengthOfMonth()) {
             add(currentMonth.atDay(day))
+        }
+        val remainder = this.size % 7
+        if (remainder != 0) {
+            repeat(7 - remainder) { add(null) }
         }
     }
 

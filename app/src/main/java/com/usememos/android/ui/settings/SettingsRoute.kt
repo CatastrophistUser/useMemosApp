@@ -66,7 +66,7 @@ fun SettingsRoute(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                text = "Store your Tailscale-accessible Memos endpoint and PAT locally on-device.",
+                text = "SSet your Memos endpoint and PAT.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
