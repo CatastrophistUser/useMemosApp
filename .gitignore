@@ -1,18 +1,42 @@
-*.iml
+# Gradle
 .gradle
 .gradle-bootstrap
-/local.properties
-/.idea/caches/
-/.idea/libraries/
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
+
+# Build outputs
+**/build/
+
+# APK / Bundle
+*.apk
+*.aab
+
+# Keystore
+*.keystore
+*.jks
+
+# Local config
+local.properties
+
+# IDE
+*.iml
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# Native build
 .externalNativeBuild
 .cxx
-local.properties
-**/build/
+
+# Misc
+.DS_Store
+Thumbs.db
+*.log
+*.class
+
+# Screenshots / recordings
+captures/
+
+# Agents file(s)
 AGENTS.md

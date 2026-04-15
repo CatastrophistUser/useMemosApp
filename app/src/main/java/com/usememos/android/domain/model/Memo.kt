@@ -13,5 +13,4 @@ data class Memo(
     val displayTime: Instant,
     val syncState: SyncState,
     val errorMessage: String?,
-    val location: Location?,
 )

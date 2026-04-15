@@ -66,7 +66,7 @@ fun SettingsRoute(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                text = "SSet your Memos endpoint and PAT.",
+                text = "Set your Memos endpoint and PAT.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
