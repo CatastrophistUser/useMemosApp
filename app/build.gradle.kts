@@ -5,9 +5,28 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+import java.util.Properties
+import java.io.FileInputStream
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("local.properties")
+
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.usememos.android"
     compileSdk = 35
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties["KEYSTORE_FILE"] as String)
+            storePassword = keystoreProperties["KEYSTORE_PASSWORD"] as String
+            keyAlias = keystoreProperties["KEY_ALIAS"] as String
+            keyPassword = keystoreProperties["KEY_PASSWORD"] as String
+        }
+    }
 
     defaultConfig {
         applicationId = "com.usememos.android"
@@ -23,6 +42,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
